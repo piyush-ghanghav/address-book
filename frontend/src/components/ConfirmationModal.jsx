@@ -8,7 +8,7 @@ export default function ConfirmationModal({ isOpen, onConfirm, onCancel, message
       <div className="modal-content">
         <p>{message}</p>
         <div className="modal-actions">
-          <button onClick={onConfirm}>Delete</button>
+          <button onClick={onConfirm} style={{ background: '#e74c3c' }}>Delete</button>
           <button onClick={onCancel} style={{ background: '#95a5a6' }}>
             Cancel
           </button>

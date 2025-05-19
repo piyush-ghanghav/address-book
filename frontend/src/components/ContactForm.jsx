@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { contactService } from '../services/api';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const initialAddress = {
   street: '',
@@ -15,27 +16,28 @@ const initialContact = {
   addresses: [{ ...initialAddress }]
 };
 
-export default function ContactForm({ onSuccess }) {
-  const [contact, setContact] = useState(initialContact);
+export default function ContactForm({ contact, onSuccess }) {
+  const [formData, setFormData] = useState(contact || initialContact);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeAddressIndex, setActiveAddressIndex] = useState(0);
 
   const handleChange = (e, index) => {
     const { name, value } = e.target;
     
     if (['name', 'email', 'phone'].includes(name)) {
-      setContact(prev => ({
+      setFormData(prev => ({
         ...prev,
         [name]: value
       }));
     } else {
       // Handle address fields
-      const updatedAddresses = [...contact.addresses];
+      const updatedAddresses = [...formData.addresses];
       updatedAddresses[index] = {
         ...updatedAddresses[index],
         [name]: value
       };
-      setContact(prev => ({
+      setFormData(prev => ({
         ...prev,
         addresses: updatedAddresses
       }));
@@ -43,27 +45,27 @@ export default function ContactForm({ onSuccess }) {
   };
 
   const addAddress = () => {
-    setContact(prev => ({
+    setFormData(prev => ({
       ...prev,
       addresses: [...prev.addresses, { ...initialAddress }]
     }));
   };
 
   const removeAddress = (index) => {
-    if (contact.addresses.length === 1) return;
+    if (formData.addresses.length === 1) return;
     
-    setContact(prev => ({
+    setFormData(prev => ({
       ...prev,
       addresses: prev.addresses.filter((_, idx) => idx !== index)
     }));
   };
 
   const validateForm = () => {
-    if (!contact.name) return 'Name is required';
-    if (!contact.email?.match(/\S+@\S+\.\S+/)) return 'Invalid email format';
-    if (!contact.phone?.match(/^[0-9]{10}$/)) return 'Phone must be 10 digits';
+    if (!formData.name) return 'Name is required';
+    if (!formData.email?.match(/\S+@\S+\.\S+/)) return 'Invalid email format';
+    if (!formData.phone?.match(/^[0-9]{10}$/)) return 'Phone must be 10 digits';
     
-    for (let addr of contact.addresses) {
+    for (let addr of formData.addresses) {
       if (!addr.street || !addr.city || !addr.state) return 'All address fields are required';
       if (!addr.pinCode?.match(/^[1-9][0-9]{5}$/)) return 'Invalid PIN code format';
     }
@@ -83,19 +85,31 @@ export default function ContactForm({ onSuccess }) {
     try {
       setLoading(true);
       setError('');
-      await contactService.create(contact);
-      setContact(initialContact);
-      onSuccess?.(); // Call onSuccess after successful creation
+      
+      if (contact?._id) {
+        // Update existing contact
+        await contactService.update(contact._id, formData);
+      } else {
+        // Create new contact
+        await contactService.create(formData);
+      }
+      
+      setFormData(initialContact);
+      onSuccess?.();
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to add contact');
+      setError(err.response?.data?.error || 'Failed to save contact');
     } finally {
       setLoading(false);
     }
   };
 
+  const toggleAddress = (index) => {
+    setActiveAddressIndex(activeAddressIndex === index ? -1 : index);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="contact-form">
-      <h2>Add New Contact</h2>
+      <h2>{contact ? 'Update Contact' : 'Add New Contact'}</h2>
       
       {error && <div className="error-message">{error}</div>}
       
@@ -103,7 +117,7 @@ export default function ContactForm({ onSuccess }) {
         <input
           type="text"
           name="name"
-          value={contact.name}
+          value={formData.name}
           onChange={e => handleChange(e)}
           placeholder="Name"
           required
@@ -114,7 +128,7 @@ export default function ContactForm({ onSuccess }) {
         <input
           type="email"
           name="email"
-          value={contact.email}
+          value={formData.email}
           onChange={e => handleChange(e)}
           placeholder="Email"
           required
@@ -125,7 +139,7 @@ export default function ContactForm({ onSuccess }) {
         <input
           type="tel"
           name="phone"
-          value={contact.phone}
+          value={formData.phone}
           onChange={e => handleChange(e)}
           placeholder="Phone (10 digits)"
           required
@@ -133,49 +147,63 @@ export default function ContactForm({ onSuccess }) {
       </div>
 
       <div className="addresses">
-        <h3>Addresses</h3>
-        {contact.addresses.map((address, index) => (
+        <h3>Addresses ({formData.addresses.length})</h3>
+        {formData.addresses.map((address, index) => (
           <div key={index} className="address-group">
-            <input
-              type="text"
-              name="street"
-              value={address.street}
-              onChange={e => handleChange(e, index)}
-              placeholder="Street"
-              required
-            />
-            <input
-              type="text"
-              name="city"
-              value={address.city}
-              onChange={e => handleChange(e, index)}
-              placeholder="City"
-              required
-            />
-            <input
-              type="text"
-              name="state"
-              value={address.state}
-              onChange={e => handleChange(e, index)}
-              placeholder="State"
-              required
-            />
-            <input
-              type="text"
-              name="pinCode"
-              value={address.pinCode}
-              onChange={e => handleChange(e, index)}
-              placeholder="PIN Code"
-              required
-            />
-            {contact.addresses.length > 1 && (
-              <button 
-                type="button" 
-                onClick={() => removeAddress(index)}
-                className="remove-address"
-              >
-                Remove
-              </button>
+            <div 
+              className="address-header" 
+              onClick={() => toggleAddress(index)}
+            >
+              <span>Address {index + 1}</span>
+              {activeAddressIndex === index ? 
+                <FaChevronUp className="icon" /> : 
+                <FaChevronDown className="icon" />
+              }
+            </div>
+            {activeAddressIndex === index && (
+              <div className="address-fields">
+                <input
+                  type="text"
+                  name="street"
+                  value={address.street}
+                  onChange={e => handleChange(e, index)}
+                  placeholder="Street"
+                  required
+                />
+                <input
+                  type="text"
+                  name="city"
+                  value={address.city}
+                  onChange={e => handleChange(e, index)}
+                  placeholder="City"
+                  required
+                />
+                <input
+                  type="text"
+                  name="state"
+                  value={address.state}
+                  onChange={e => handleChange(e, index)}
+                  placeholder="State"
+                  required
+                />
+                <input
+                  type="text"
+                  name="pinCode"
+                  value={address.pinCode}
+                  onChange={e => handleChange(e, index)}
+                  placeholder="PIN Code"
+                  required
+                />
+                {formData.addresses.length > 1 && (
+                  <button 
+                    type="button" 
+                    onClick={() => removeAddress(index)}
+                    className="remove-address"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
             )}
           </div>
         ))}
@@ -185,7 +213,7 @@ export default function ContactForm({ onSuccess }) {
       </div>
 
       <button type="submit" disabled={loading} className="submit-button">
-        {loading ? 'Adding...' : 'Add Contact'}
+        {loading ? (contact ? 'Updating...' : 'Adding...') : (contact ? 'Update Contact' : 'Add Contact')}
       </button>
     </form>
   );

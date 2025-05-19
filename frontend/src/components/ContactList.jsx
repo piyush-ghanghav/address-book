@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import { contactService } from '../services/api';
+import ContactForm from './ContactForm';
+import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaEdit, FaTrash, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 export default function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -8,6 +10,8 @@ export default function ContactList() {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [toDeleteId, setToDeleteId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
+  const [selectedContact, setSelectedContact] = useState(null);
 
   const fetchContacts = async () => {
     try {
@@ -44,6 +48,15 @@ export default function ContactList() {
     }
   };
 
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleUpdate = (contact, e) => {
+    e.stopPropagation();
+    setSelectedContact(contact);
+  };
+
   if (loading) return <div>Loading contacts...</div>;
   if (error) return <div className="error">{error}</div>;
 
@@ -54,23 +67,68 @@ export default function ContactList() {
         <p>No contacts found</p>
       ) : (
         contacts.map(contact => (
-          <div key={contact._id} className="contact-card">
-            <h3>{contact.name}</h3>
-            <p>Email: {contact.email}</p>
-            <p>Phone: {contact.phone}</p>
-            <div className="addresses">
-              <h4>Addresses:</h4>
-              {contact.addresses?.map((addr, idx) => (
-                <div key={idx} className="address">
-                  <p>{addr.street}</p>
-                  <p>{addr.city}, {addr.state}</p>
-                  <p>PIN: {addr.pinCode}</p>
+          <div 
+            key={contact._id} 
+            className={`contact-card ${expandedId === contact._id ? 'expanded' : ''}`}
+            onClick={() => toggleExpand(contact._id)}
+          >
+            <div className="contact-summary">
+              <div className="contact-info">
+                <div className="contact-name">
+                  <FaUser className="icon" />
+                  <h3>{contact.name}</h3>
                 </div>
-              ))}
+                <div className="contact-phone">
+                  <FaPhone className="icon" />
+                  <span>{contact.phone}</span>
+                </div>
+              </div>
+              {expandedId === contact._id ? 
+                <FaChevronUp className="expand-icon" /> : 
+                <FaChevronDown className="expand-icon" />
+              }
             </div>
-            <div className="actions">
-              <button onClick={() => confirmDelete(contact._id)}>Delete</button>
-            </div>
+
+            {expandedId === contact._id && (
+              <div className="contact-details" onClick={e => e.stopPropagation()}>
+                <div className="detail-item">
+                  <FaEnvelope className="icon" />
+                  <span>{contact.email}</span>
+                </div>
+                <div className="addresses">
+                  <h4>
+                    <FaMapMarkerAlt className="icon" />
+                    Addresses
+                  </h4>
+                  {contact.addresses?.map((addr, idx) => (
+                    <div key={idx} className="address">
+                      <div className="address-content">
+                        <p>{addr.street}</p>
+                        <p>{addr.city}, {addr.state}</p>
+                        <p>PIN: {addr.pinCode}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="actions">
+                  <button 
+                    onClick={(e) => handleUpdate(contact, e)}
+                    className="update-button"
+                  >
+                     Update
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      confirmDelete(contact._id);
+                    }}
+                    className="delete-button"
+                  >
+                     Delete
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ))
       )}
@@ -81,6 +139,26 @@ export default function ContactList() {
         onCancel={() => setModalOpen(false)}
         message="Are you sure you want to delete this contact?"
       />
+
+      {selectedContact && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button 
+              className="close-button"
+              onClick={() => setSelectedContact(null)}
+            >
+              ×
+            </button>
+            <ContactForm 
+              contact={selectedContact} 
+              onSuccess={() => {
+                setSelectedContact(null);
+                fetchContacts();
+              }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
