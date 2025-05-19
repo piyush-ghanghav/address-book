@@ -1,0 +1,184 @@
+/* styles/main.css */
+
+/* Reset and base styles */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.add-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Contact list styles */
+.contact-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.contact-card h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.address {
+  background: #f8f9fa;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+}
+
+.address p {
+  margin: 5px 0;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+}
+
+/* Button spacing and styles */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background: #3498db;
+  color: white;
+  min-width: 80px;
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background: #3498db;
+  color: white;
+}
+
+close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  color: #666;
+  font-size: 24px;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.error-message {
+  color: #e74c3c;
+  padding: 10px;
+  background: #fdf0ef;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+/* Form button spacing */
+.form-group button {
+  margin-right: 12px;
+}
+
+.address-group {
+  position: relative;
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.remove-address {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.add-address {
+  margin-bottom: 20px;
+  background: #27ae60;
+}
+
+.submit-button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+}
