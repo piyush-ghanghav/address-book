@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import { contactService } from '../services/api';
 import ContactForm from './ContactForm';
-import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaEdit, FaTrash, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaEdit, FaTrash, FaChevronDown, FaChevronUp, FaSpinner } from 'react-icons/fa';
 
 export default function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -57,7 +57,12 @@ export default function ContactList() {
     setSelectedContact(contact);
   };
 
-  if (loading) return <div>Loading contacts...</div>;
+  if (loading) return (
+    <div className="loading-state">
+      <FaSpinner className="spinner" />
+      <p>Loading contacts...</p>
+    </div>
+  );
   if (error) return <div className="error">{error}</div>;
 
   return (
