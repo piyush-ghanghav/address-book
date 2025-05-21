@@ -3,6 +3,8 @@ import { contactService } from '../services/api';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const initialAddress = {
+  title: '',
+  customTitle: '',
   street: '',
   city: '',
   state: '',
@@ -66,6 +68,8 @@ export default function ContactForm({ contact, onSuccess }) {
     if (!formData.phone?.match(/^[0-9]{10}$/)) return 'Phone must be 10 digits';
     
     for (let addr of formData.addresses) {
+      if (!addr.title) return 'Address type is required';
+      if (addr.title === 'Other' && !addr.customTitle) return 'Custom title is required';
       if (!addr.street || !addr.city || !addr.state) return 'All address fields are required';
       if (!addr.pinCode?.match(/^[1-9][0-9]{5}$/)) return 'Invalid PIN code format';
     }
@@ -162,6 +166,29 @@ export default function ContactForm({ contact, onSuccess }) {
             </div>
             {activeAddressIndex === index && (
               <div className="address-fields">
+                <select
+                  name="title"
+                  value={address.title}
+                  onChange={e => handleChange(e, index)}
+                  required
+                >
+                  <option value="">Select Address Type</option>
+                  <option value="Home">Home</option>
+                  <option value="Office">Office</option>
+                  <option value="Other">Other</option>
+                </select>
+                
+                {address.title === 'Other' && (
+                  <input
+                    type="text"
+                    name="customTitle"
+                    value={address.customTitle || ''}
+                    onChange={e => handleChange(e, index)}
+                    placeholder="Enter Custom Title"
+                    required
+                  />
+                )}
+                
                 <input
                   type="text"
                   name="street"

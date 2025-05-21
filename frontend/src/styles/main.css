@@ -1,4 +1,3 @@
-
 /* ==========================================================================
    Base & Reset Styles
    ========================================================================== */
@@ -344,4 +343,13 @@
   
   .address-fields input {
     margin: 0;
+  }
+  
+  .address-fields select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    background-color: white;
   }

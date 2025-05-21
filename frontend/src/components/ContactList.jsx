@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ConfirmationModal from './ConfirmationModal';
 import { contactService } from '../services/api';
 import ContactForm from './ContactForm';
-import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaEdit, FaTrash, FaChevronDown, FaChevronUp, FaSpinner } from 'react-icons/fa';
+import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaChevronDown, FaChevronUp, FaSpinner } from 'react-icons/fa';
 
 export default function ContactList() {
   const [contacts, setContacts] = useState([]);
@@ -107,6 +107,11 @@ export default function ContactList() {
                   </h4>
                   {contact.addresses?.map((addr, idx) => (
                     <div key={idx} className="address">
+                      <div className="address-header">
+                        <span>
+                          {addr.title === 'Other' ? addr.customTitle : addr.title}
+                        </span>
+                      </div>
                       <div className="address-content">
                         <p>{addr.street}</p>
                         <p>{addr.city}, {addr.state}</p>

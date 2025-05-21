@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
 
 const addressSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    enum: ['Home', 'Office', 'Other']
+  },
+  customTitle: {
+    type: String,
+    required: function() {
+      return this.title === 'Other';
+    }
+  },
   street: String,
   city: String,
   state: String,
