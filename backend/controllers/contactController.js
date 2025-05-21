@@ -14,13 +14,26 @@ exports.createContact = async (req, res) => {
     await contact.save();
     res.status(201).json(contact);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    if (error.code === 11000) { // MongoDB duplicate key error code
+      res.status(400).json({ error: 'Email address already exists' });
+    } else {
+      res.status(400).json({ error: error.message });
+    }
   }
 };
 
 // PUT update contact
 exports.updateContact = async (req, res) => {
   try {
+    const existingContact = await Contact.findOne({
+      email: req.body.email,
+      _id: { $ne: req.params.id }
+    });
+    
+    if (existingContact) {
+      return res.status(400).json({ error: 'Email address already exists' });
+    }
+
     const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!contact) return res.status(404).json({ error: 'Contact not found' });
     res.json(contact);

@@ -91,10 +91,8 @@ export default function ContactForm({ contact, onSuccess }) {
       setError('');
       
       if (contact?._id) {
-        // Update existing contact
         await contactService.update(contact._id, formData);
       } else {
-        // Create new contact
         await contactService.create(formData);
       }
       
